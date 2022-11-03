@@ -21,14 +21,14 @@ def detect_image(api, frame, capsule_names=None):
 def face_detection(image):
 	# 转成灰度图像
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    # 创建一个级联分类器 加载一个.xml分类器文件 它既可以是Haar特征也可以是LBP特征的分类器
+    # 创建一个级联分类器 加载一个.xml分类器文件
     face_detecter = cv2.CascadeClassifier(R'/usr/share/opencv4/haarcascades/haarcascade_frontalface_default.xml')
     # 多个尺度空间进行人脸检测   返回检测到的人脸区域坐标信息
     faces = face_detecter.detectMultiScale(image=gray, scaleFactor=1.1, minNeighbors=5)
     print('检测人脸信息如下：\n', faces)
     for x, y, w, h in faces:
         # 在原图像上绘制圆形检测人脸
-        cv2.circle(img=image, center=(x + w // 2, y + h // 2), radius=w // 2, color=[0, 255, 0], thickness=2)
+        cv2.circle(img=image, center=(x + w // 2, y + h // 2), radius=w // 2+2, color=[0, 255, 0], thickness=2)
     #cv2.imshow('result', image)
     return faces
 
@@ -60,6 +60,7 @@ def main():
         rst, frame = cap.read()
         if not rst:
             print(f"Failed to read frame")
+            break
 
         num_detections = 0
         if frame is not None:
@@ -77,14 +78,16 @@ def main():
                     else:
                         xy.append([coor[0][0],coor[0][1], coor[2][0], coor[2][1]])
                     cv2.rectangle(img=frame, pt1=(xy[index][0], xy[index][1]), pt2=(xy[index][2], xy[index][3]), color=[0, 0, 255], thickness=2)
-                    cv2.imshow('output', frame)
+
+                    # no need show frame here
+                    #cv2.imshow('output', frame)
             #end for
 
             face_detection(frame)
             cv2.imshow('output', frame)
         #end if
 
-        keyv = cv2.waitKey(2)
+        keyv = cv2.waitKey(1)
         if ord('q') == keyv:
             break
         if ord('s') == keyv:
@@ -94,9 +97,12 @@ def main():
                 cv2.imshow(str_crop, cropped)
                 str_crop += '.png'
                 cv2.imwrite(str_crop, cropped)
+            #end for
+            cv2.waitKey()
             break
+        #end if
+    #end while
 
-    cv2.waitKey()
     cv2.destroyAllWindows()
     cap.release()
 
